@@ -31,13 +31,10 @@ WORKDIR /build
 # Copy everything (relies on .dockerignore to exclude node_modules, .git, etc.)
 COPY . .
 
-# Install dependencies, skipping lifecycle scripts to avoid referencing
-# bin files (e.g. generate-node-defs) that haven't been compiled yet.
-# Then selectively rebuild only native addons that need node-gyp.
-RUN pnpm install --frozen-lockfile --ignore-scripts \
-    && pnpm rebuild isolated-vm \
-    && pnpm rebuild sqlite3 \
-    && pnpm rebuild bcrypt || true
+# Install all dependencies. Some postinstall scripts may fail because
+# bin stubs reference not-yet-compiled output; that's OK — the build
+# step will compile everything and pnpm deploy will re-link.
+RUN pnpm install --frozen-lockfile || true
 
 # Build the entire monorepo via turbo (this compiles all bins).
 # Increase Node heap and limit turbo concurrency to avoid OOM on low-RAM hosts.
