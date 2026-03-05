@@ -28,29 +28,15 @@ RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 WORKDIR /build
 
-# Copy dependency manifests first (cache layer)
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-COPY patches/ patches/
+# Copy everything (relies on .dockerignore to exclude node_modules, .git, etc.)
+COPY . .
 
-# Copy all package.json files from workspace packages so pnpm can resolve the graph.
-# We use a two-step approach: copy manifests → install → copy source → build.
-COPY packages/cli/package.json packages/cli/package.json
-COPY packages/core/package.json packages/core/package.json
-COPY packages/nodes-base/package.json packages/nodes-base/package.json
-COPY packages/@n8n/ packages/@n8n/
-COPY packages/frontend/ packages/frontend/
-COPY packages/extensions/ packages/extensions/
-COPY packages/testing/ packages/testing/
-
-# Install all dependencies, skipping lifecycle scripts to avoid referencing
+# Install dependencies, skipping lifecycle scripts to avoid referencing
 # bin files (e.g. generate-node-defs) that haven't been compiled yet.
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
-# Copy full source
-COPY . .
-
 # Build the entire monorepo via turbo (this compiles all bins).
-# Then re-run install to execute any deferred lifecycle scripts.
+# Then re-run install to link the compiled bin stubs.
 RUN pnpm build && pnpm install --frozen-lockfile
 
 # Generate third-party licenses (best effort)
