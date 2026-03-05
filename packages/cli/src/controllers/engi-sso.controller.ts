@@ -55,8 +55,11 @@ export class EngiSsoController {
 	 * and redirects to the editor.
 	 */
 	@Get('/', { skipAuth: true })
-	async handleSso(req: AuthlessRequest, res: Response): Promise<void> {
-		const token = req.query.token as string | undefined;
+	async handleSso(
+		req: AuthlessRequest<{}, {}, {}, { token?: string }>,
+		res: Response,
+	): Promise<void> {
+		const token = req.query.token;
 
 		if (!token) {
 			throw new BadRequestError('Missing token parameter');
@@ -100,7 +103,7 @@ export class EngiSsoController {
 
 		this.eventService.emit('user-logged-in', {
 			user,
-			authenticationMethod: 'email' as const,
+			authenticationMethod: 'engi-sso' as const,
 		});
 
 		res.redirect('/');
