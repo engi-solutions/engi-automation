@@ -33,8 +33,11 @@ COPY . .
 
 # Install dependencies, skipping lifecycle scripts to avoid referencing
 # bin files (e.g. generate-node-defs) that haven't been compiled yet.
-# Then rebuild native modules (isolated-vm, sqlite3, etc.) that need node-gyp.
-RUN pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild
+# Then selectively rebuild only native addons that need node-gyp.
+RUN pnpm install --frozen-lockfile --ignore-scripts \
+    && pnpm rebuild isolated-vm \
+    && pnpm rebuild sqlite3 \
+    && pnpm rebuild bcrypt || true
 
 # Build the entire monorepo via turbo (this compiles all bins).
 # Increase Node heap and limit turbo concurrency to avoid OOM on low-RAM hosts.
