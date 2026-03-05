@@ -42,14 +42,16 @@ COPY packages/frontend/ packages/frontend/
 COPY packages/extensions/ packages/extensions/
 COPY packages/testing/ packages/testing/
 
-# Install all dependencies (including devDependencies for build)
-RUN pnpm install --frozen-lockfile
+# Install all dependencies, skipping lifecycle scripts to avoid referencing
+# bin files (e.g. generate-node-defs) that haven't been compiled yet.
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy full source
 COPY . .
 
-# Build the entire monorepo via turbo
-RUN pnpm build
+# Build the entire monorepo via turbo (this compiles all bins).
+# Then re-run install to execute any deferred lifecycle scripts.
+RUN pnpm build && pnpm install --frozen-lockfile
 
 # Generate third-party licenses (best effort)
 RUN node scripts/generate-third-party-licenses.mjs || true
