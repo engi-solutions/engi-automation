@@ -242,7 +242,8 @@ export class Telemetry {
 
 			script.type = 'text/javascript';
 			script.async = !0;
-			script.src = 'https://cdn-rs.n8n.io/v1/ra.min.js';
+			// Telemetry disabled for Engi Automation
+			script.src = '';
 
 			const element: Element = document.getElementsByTagName('script')[0];
 

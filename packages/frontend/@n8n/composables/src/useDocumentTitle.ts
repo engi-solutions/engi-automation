@@ -1,7 +1,7 @@
 import { ref, type Ref } from 'vue';
 
-const DEFAULT_TITLE = 'n8n';
-const DEFAULT_TAGLINE = 'Workflow Automation';
+const DEFAULT_TITLE = 'Engi Automation';
+const DEFAULT_TAGLINE = 'Automatización de flujos';
 
 export type WorkflowTitleStatus =
 	| 'EXECUTING'

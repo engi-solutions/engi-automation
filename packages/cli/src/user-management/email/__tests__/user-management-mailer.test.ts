@@ -85,7 +85,7 @@ describe('UserManagementMailer', () => {
 			expect(nodeMailer.sendMail).toHaveBeenCalledWith({
 				body: expect.stringContaining(`href="${inviteEmailData.inviteAcceptUrl}"`),
 				emailRecipients: email,
-				subject: 'You have been invited to n8n',
+				subject: 'You have been invited to Engi Automation',
 			});
 		});
 

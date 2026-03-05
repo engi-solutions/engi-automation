@@ -54,6 +54,7 @@ import '@/controllers/user-settings.controller';
 import '@/controllers/workflow-statistics.controller';
 import '@/controllers/api-keys.controller';
 import '@/controllers/security-settings.controller';
+import '@/controllers/engi-sso.controller';
 import '@/credentials/credentials.controller';
 import '@/events/events.controller';
 import '@/executions/executions.controller';
@@ -368,6 +369,11 @@ export class Server extends AbstractServer {
 			);
 			const crossOriginOpenerPolicy = Container.get(SecurityConfig).crossOriginOpenerPolicy;
 			const cspReportOnly = Container.get(SecurityConfig).contentSecurityPolicyReportOnly;
+
+			// Allow iframe embedding when ENGI_FRAME_ANCESTORS is set (e.g. "https://app.engi.com")
+			const frameAncestors = process.env.ENGI_FRAME_ANCESTORS;
+			const allowIframeEmbed = !!frameAncestors;
+
 			const securityHeadersMiddleware = helmet({
 				contentSecurityPolicy: isEmpty(cspDirectives)
 					? false
@@ -376,10 +382,15 @@ export class Server extends AbstractServer {
 							reportOnly: cspReportOnly,
 							directives: {
 								...cspDirectives,
+								...(allowIframeEmbed
+									? { 'frame-ancestors': ["'self'", ...frameAncestors.split(',')] }
+									: {}),
 							},
 						},
 				xFrameOptions:
-					isPreviewMode || inE2ETests || inDevelopment ? false : { action: 'sameorigin' },
+					allowIframeEmbed || isPreviewMode || inE2ETests || inDevelopment
+						? false
+						: { action: 'sameorigin' },
 				dnsPrefetchControl: false,
 				// This is only relevant for Internet-explorer, which we do not support
 				ieNoOpen: false,

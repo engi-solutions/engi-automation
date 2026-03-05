@@ -62,7 +62,7 @@ export class UserManagementMailer {
 		const template = await this.getTemplate('user-invited');
 		return await this.mailer.sendMail({
 			emailRecipients: inviteEmailData.email,
-			subject: 'You have been invited to n8n',
+			subject: 'You have been invited to Engi Automation',
 			body: template({ ...this.basePayload, ...inviteEmailData }),
 		});
 	}

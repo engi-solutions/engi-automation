@@ -7,7 +7,7 @@
     <mj-column padding="0px" />
     <mj-text padding="8px 12px" font-size="16px" />
     <mj-image padding="0px" />
-    <mj-button padding="20px 12px" background-color="#ff6f5c" color="#ffffff" inner-padding="8px 40px" border-radius="8px" align="left" font-size="16px" />
+    <mj-button padding="20px 12px" background-color="#4A7CFF" color="#ffffff" inner-padding="8px 40px" border-radius="8px" align="left" font-size="16px" />
     <mj-divider padding="10px 12px" border-color="#d9d9d9" border-width="1px" />
   </mj-attributes>
 </mj-head>

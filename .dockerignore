@@ -1,40 +1,46 @@
-# Whitelist approach: ignore everything, then allow only what Docker builds need
-# This reduces build context from ~900MB to just what's required
+# Blacklist approach: allow everything except build artifacts and dev files
+# This is needed for the multi-stage Dockerfile that builds from source.
+#
+# The original n8n .dockerignore used a whitelist (allow only compiled/) because
+# their pipeline builds outside Docker. Our fork builds inside Docker.
 
-# Ignore everything first
-*
+# Git
+.git
+.gitignore
 
-# === n8n main image (docker/images/n8n/Dockerfile) ===
-!compiled
-!compiled/**
-!THIRD_PARTY_LICENSES.md
+# Build artifacts (we build fresh inside Docker)
+compiled/
+dist/
 
-# === runners image (docker/images/runners/Dockerfile + Dockerfile.distroless) ===
-!dist
-!dist/task-runner-javascript
-!dist/task-runner-javascript/**
-!packages
-!packages/@n8n
-!packages/@n8n/task-runner-python
-!packages/@n8n/task-runner-python/**
+# Node modules (pnpm install runs inside Docker)
+node_modules/
+**/node_modules/
 
-# === Docker build files (entrypoints, configs) ===
-!docker
-!docker/images
-!docker/images/n8n
-!docker/images/n8n/docker-entrypoint.sh
-!docker/images/runners
-!docker/images/runners/n8n-task-runners.json
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# === benchmark image (packages/@n8n/benchmark/Dockerfile) ===
-!package.json
-!pnpm-lock.yaml
-!pnpm-workspace.yaml
-!patches
-!patches/**
-!scripts
-!scripts/**
-!packages/@n8n/benchmark
-!packages/@n8n/benchmark/**
-!packages/@n8n/typescript-config
-!packages/@n8n/typescript-config/**
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dev containers
+.devcontainer/
+
+# Test coverage
+coverage/
+**/coverage/
+
+# Environment files (secrets must not be baked into images)
+.env
+.env.*
+!.env.example
+
+# CI config (not needed for build)
+.github/
+!.github/scripts/trim-fe-packageJson.js
+
+# Docker images for official n8n (we use root Dockerfile instead)
+# Keep docker/images/n8n/docker-entrypoint.sh (needed by runtime stage)

@@ -20,11 +20,11 @@
 
 @mixin theme {
 	/* stylelint-disable-next-line @n8n/css-var-naming */
-	--color--primary--h: 7;
+	--color--primary--h: 225;
 	/* stylelint-disable-next-line @n8n/css-var-naming */
-	--color--primary--s: 100%;
+	--color--primary--s: 80%;
 	/* stylelint-disable-next-line @n8n/css-var-naming */
-	--color--primary--l: 68%;
+	--color--primary--l: 60%;
 
 	// Legacy tokens (kept for compatibility)
 
