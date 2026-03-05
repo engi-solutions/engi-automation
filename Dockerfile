@@ -36,8 +36,10 @@ COPY . .
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Build the entire monorepo via turbo (this compiles all bins).
+# Increase Node heap and limit turbo concurrency to avoid OOM on low-RAM hosts.
 # Then re-run install to link the compiled bin stubs.
-RUN pnpm build && pnpm install --frozen-lockfile
+ENV NODE_OPTIONS="--max-old-space-size=3072"
+RUN TURBO_CONCURRENCY=2 pnpm build && pnpm install --frozen-lockfile
 
 # Generate third-party licenses (best effort)
 RUN node scripts/generate-third-party-licenses.mjs || true
