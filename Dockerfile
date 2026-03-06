@@ -47,6 +47,21 @@ RUN node scripts/generate-third-party-licenses.mjs || true
 # Trim frontend package.json files (removes unnecessary fields for prod)
 RUN node .github/scripts/trim-fe-packageJson.js || true
 
+# Remove frontend-only patches that cause ERR_PNPM_UNUSED_PATCH during
+# production deploy (build-n8n.mjs does this in CI, we replicate it here).
+RUN node -e "\
+  const fs=require('fs');\
+  const p=JSON.parse(fs.readFileSync('package.json','utf8'));\
+  if(p.pnpm&&p.pnpm.patchedDependencies){\
+    const keep=['pdfjs-dist','pkce-challenge','bull'];\
+    const f={};\
+    for(const[k,v]of Object.entries(p.pnpm.patchedDependencies)){\
+      if(keep.some(x=>k.startsWith(x)))f[k]=v;\
+    }\
+    p.pnpm.patchedDependencies=f;\
+  }\
+  fs.writeFileSync('package.json',JSON.stringify(p,null,2));"
+
 # Deploy n8n CLI with production-only dependencies into /compiled
 RUN NODE_ENV=production DOCKER_BUILD=true \
     pnpm --filter=n8n --prod --legacy deploy --no-optional /compiled
